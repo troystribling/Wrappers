@@ -19,7 +19,7 @@ extension Optional {
         }
     }
     
-    func recover(value:T) -> T? {
+    func getOrElse(value:T) -> T? {
         switch self {
         case .Some(let value):
             return value
@@ -35,5 +35,9 @@ public func map<T,M>(maybe:T?, mapping:T -> M) -> M? {
 
 public func flatmap<T,M>(maybe:T?, mapping:T -> M?) -> M? {
     return maybe.flatmap(mapping)
+}
+
+public func getOrElse<T>(maybe:T?, value:T) -> T? {
+    return maybe.getOrElse(value)
 }
 

@@ -8,6 +8,14 @@
 
 import Foundation
 
+struct TryError {
+    static let domain = "Wrappers"
+    struct FilterFailed {
+        static let code = 1
+        static let description = "Filter failed"
+    }
+}
+
 public enum Try<T> {
 
     case Success(Box<T>)
@@ -19,6 +27,28 @@ public enum Try<T> {
     
     public init(_ error:NSError) {
         self = .Failure(error)
+    }
+    
+    public mutating func failed(error:NSError) {
+        self = .Failure(error)
+    }
+    
+    public func isSuccess() -> Bool {
+        switch self {
+        case .Success:
+            return true
+        case .Failure:
+            return false
+        }
+    }
+    
+    public func isFailure() -> Bool {
+        switch self {
+        case .Success:
+            return false
+        case .Failure:
+            return true
+        }
     }
     
     public func map<M>(mapping:T -> M) -> Try<M> {
@@ -48,13 +78,49 @@ public enum Try<T> {
         }
     }
     
+    public func recoverWith(recovery:NSError -> Try<T>) -> Try<T> {
+        switch self {
+        case .Success:
+            return self
+        case .Failure(let error):
+            return recovery(error)
+        }
+    }
+    
+    public mutating func filter(predicate:T -> Bool) -> Try<T> {
+        switch self {
+        case .Success(let box):
+            if !predicate(box.value) {
+                self = .Failure(NSError(domain:TryError.domain, code:TryError.FilterFailed.code, userInfo:[NSLocalizedDescriptionKey:TryError.FilterFailed.description]))
+            }
+            return self
+        case .Failure(let error):
+            return self
+        }
+    }
+    
 }
 
-public func map<M, T>(try:Try<T>, mapping:T -> M) -> Try<M> {
+public func map<M,T>(try:Try<T>, mapping:T -> M) -> Try<M> {
     return try.map(mapping)
 }
 
-public func flatmap<M, T>(try:Try<T>, mapping:T -> Try<M>) -> Try<M> {
+public func flatmap<M,T>(try:Try<T>, mapping:T -> Try<M>) -> Try<M> {
     return try.flatmap(mapping)
 }
 
+public func recover<T>(try:Try<T>, recovery:NSError -> T) -> Try<T> {
+    return try.recover(recovery)
+}
+
+public func recoverWith<T>(try:Try<T>, recovery:NSError -> Try<T>) -> Try<T> {
+    return try.recoverWith(recovery)
+}
+
+public func isSuccess<T>(try:Try<T>) -> Bool {
+    return try.isSuccess()
+}
+
+public func isFailure<T>(try:Try<T>) -> Bool {
+    return try.isFailure()
+}
