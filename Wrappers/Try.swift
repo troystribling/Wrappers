@@ -24,10 +24,15 @@ public enum Try<T> {
     public init(_ value:T) {
         self = .Success(Box(value))
     }
-    
+
+    public init(_ value:Box<T>) {
+        self = .Success(value)
+    }
+
     public init(_ error:NSError) {
         self = .Failure(error)
     }
+    
     
     public mutating func failed(error:NSError) {
         self = .Failure(error)
@@ -54,7 +59,7 @@ public enum Try<T> {
     public func map<M>(mapping:T -> M) -> Try<M> {
         switch self {
         case .Success(let box):
-            return Try<M>(mapping(box.value))
+            return Try<M>(box.map(mapping))
         case .Failure(let error):
             return Try<M>(error)
         }

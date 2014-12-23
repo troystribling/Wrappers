@@ -27,6 +27,8 @@ extension Optional {
             return value
         }
     }
+    
+    
 }
 
 public func map<T,M>(maybe:T?, mapping:T -> M) -> M? {
