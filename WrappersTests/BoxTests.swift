@@ -8,6 +8,7 @@
 
 import UIKit
 import XCTest
+import Wrappers
 
 class BoxTests: XCTestCase {
 
@@ -19,4 +20,13 @@ class BoxTests: XCTestCase {
         super.tearDown()
     }
 
+    func testMap() {
+        let box = Box(1)
+        XCTAssert(box.map{2*$0}.value == 2, "mapped value invalid")
+    }
+    
+    func testFlatmap() {
+        let box = Box(1)
+        XCTAssert(box.flatmap{Box(2*$0)}.value == 2, "mapped value invalid")
+    }
 }

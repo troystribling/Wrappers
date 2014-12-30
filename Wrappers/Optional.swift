@@ -22,9 +22,9 @@ extension Optional {
     func filter(predicate:T -> Bool) -> T? {
         switch self {
         case .Some(let value):
-            return predicate(value) ? value : nil
+            return predicate(value) ? Optional(value) : nil
         case .None:
-            return nil
+            return Optional()
         }
     }
 
@@ -37,23 +37,6 @@ extension Optional {
         }
     }
     
-    func getOrElse(failed:T) -> T {
-        return self ?? failed
-    }
-    
-    func orElse(failed:T?) -> T? {
-        switch self {
-        case .Some(let value):
-            return self
-        case .None:
-            return failed
-        }
-    }
-    
-}
-
-public func map<T,M>(maybe:T?, mapping:T -> M) -> M? {
-    return maybe.map(mapping)
 }
 
 public func flatmap<T,M>(maybe:T?, mapping:T -> M?) -> M? {
@@ -68,14 +51,6 @@ public func filter<T>(maybe:T?, predicate:T -> Bool) -> T? {
     return maybe.filter(predicate)
 }
 
-public func getOrElse<T>(maybe:T?, value:T) -> T? {
-    return maybe.getOrElse(value)
-}
-
-public func orElse<T>(maybe:T?, value:T?) -> T? {
-    return maybe.orElse(value)
-}
-
 public func forcomp<T,U>(f:T?, g:U?, #apply:(T,U) -> Void) {
     f.foreach {fvalue in
         g.foreach {gvalue in
@@ -88,7 +63,7 @@ public func flatten<T>(maybe:T??) -> T? {
     case .Some(let value):
         return value
     case .None:
-        return nil
+        return Optional()
     }
 }
 

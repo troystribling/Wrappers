@@ -31,10 +31,6 @@ public enum Try<T> {
     }
     
     
-    public mutating func failed(error:NSError) {
-        self = .Failure(error)
-    }
-    
     public func isSuccess() -> Bool {
         switch self {
         case .Success:
