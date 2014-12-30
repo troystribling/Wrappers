@@ -139,4 +139,93 @@ public enum Try<T> {
     
 }
 
+public func flatten<T>(try:Try<Try<T>>) -> Try<T> {
+    switch try {
+    case .Success(let box):
+        return box.value
+    case .Failure(let error):
+        return Try<T>(error)
+    }
+}
+
+public func forcomp<T,U>(f:Try<T>, g:Try<U>, #apply:(T,U) -> Void) {
+    f.foreach {fvalue in
+        g.foreach {gvalue in
+            apply(fvalue, gvalue)
+        }
+    }
+}
+
+public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, h:Try<V>, #apply:(T,U,V) -> Void) {
+    f.foreach {fvalue in
+        g.foreach {gvalue in
+            h.foreach {hvalue in
+                apply(fvalue, gvalue, hvalue)
+            }
+        }
+    }
+}
+
+public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, #yield:(T,U) -> V) -> Try<V> {
+    return f.flatmap {fvalue in
+        g.map {gvalue in
+            yield(fvalue, gvalue)
+        }
+    }
+}
+
+public func forcomp<T,U,V,W>(f:Try<T>, g:Try<U>, h:Try<V>, #yield:(T,U,V) -> W) -> Try<W> {
+    return f.flatmap {fvalue in
+        g.flatmap {gvalue in
+            h.map {hvalue in
+                yield(fvalue, gvalue, hvalue)
+            }
+        }
+    }
+}
+
+public func forcomp<T,U>(f:Try<T>, g:Try<U>, #filter:(T,U) -> Bool, #apply:(T,U) -> Void) {
+    f.foreach {fvalue in
+        g.filter{gvalue in
+            filter(fvalue, gvalue)
+            }.foreach {gvalue in
+                apply(fvalue, gvalue)
+        }
+    }
+}
+
+public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, h:Try<V>, #filter:(T,U,V) -> Bool, #apply:(T,U,V) -> Void) {
+    f.foreach {fvalue in
+        g.foreach {gvalue in
+            h.filter{hvalue in
+                filter(fvalue, gvalue, hvalue)
+                }.foreach {hvalue in
+                    apply(fvalue, gvalue, hvalue)
+            }
+        }
+    }
+}
+
+public func forcomp<T,U,V>(f:Try<T>, g:Try<U>, #filter:(T,U) -> Bool, #yield:(T,U) -> V) -> Try<V> {
+    return f.flatmap {fvalue in
+        g.filter {gvalue in
+            filter(fvalue, gvalue)
+            }.map {gvalue in
+                yield(fvalue, gvalue)
+        }
+    }
+}
+
+public func forcomp<T,U,V,W>(f:Try<T>, g:Try<U>, h:Try<V>, #filter:(T,U,V) -> Bool, #yield:(T,U,V) -> W) -> Try<W> {
+    return f.flatmap {fvalue in
+        g.flatmap {gvalue in
+            h.filter {hvalue in
+                filter(fvalue, gvalue, hvalue)
+                }.map {hvalue in
+                    yield(fvalue, gvalue, hvalue)
+            }
+        }
+    }
+
+}
 
