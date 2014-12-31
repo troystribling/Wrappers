@@ -93,7 +93,7 @@ class OpionalTests: XCTestCase {
             XCTAssert(value2 == 1.0, "optional forcomp invalid value2")
             status = true
         }
-        XCTAssert(status, "optional forcomp success failed")
+        XCTAssert(status, "optional forcomp apply not called")
     }
     
     func testForcompFailure2Optionals() {
@@ -111,7 +111,7 @@ class OpionalTests: XCTestCase {
         let result = forcomp(maybe1, maybe2) {(value1, value2) -> Float in
             return Float(value1) * value2
         }
-        XCTAssert(result == 2.0, "optional forcomp success failed")
+        XCTAssert(result == 2.0, "optional forcomp failed")
     }
     
     func testForcompYieldFailure2Optionals() {
@@ -121,7 +121,7 @@ class OpionalTests: XCTestCase {
             XCTAssert(false, "forcomp yield called")
             return 0.0
         }
-        XCTAssert(result == nil, "optional forcomp failure failed")
+        XCTAssert(result == nil, "optional forcomp ffailed")
     }
 
     func testForcompSuccess3Optionals() {
@@ -135,7 +135,7 @@ class OpionalTests: XCTestCase {
             XCTAssert(value3 == 1, "optional forcomp invalid value3")
             status = true
         }
-        XCTAssert(status, "optional forcomp success failed")
+        XCTAssert(status, "optional forcomp apply not called")
     }
     
     func testForcompFailure3Optionals() {
@@ -165,7 +165,7 @@ class OpionalTests: XCTestCase {
             XCTAssert(false, "optional forcomp yield called")
             return 0
         }
-        XCTAssert(result == nil, "optional forcomp success failed")
+        XCTAssert(result == nil, "optional forcomp failed")
     }
 
     func testForcompFilterSuccess2Optionals() {
@@ -183,7 +183,8 @@ class OpionalTests: XCTestCase {
                 XCTAssert(value2 == 1.0, "optional forcomp apply invalid value2")
                 applyStatus = true
             }
-        XCTAssert(applyStatus || filterStatus, "optional forcomp filter success failed")
+        XCTAssert(applyStatus, "optional forcomp apply not called")
+        XCTAssert(filterStatus, "optional forcomp filter not called")
 
     }
     
@@ -199,67 +200,115 @@ class OpionalTests: XCTestCase {
             }) {(value1, value2) in
                 XCTAssert(false, "optional forcomp apply called")
             }
-        XCTAssert(status, "optional forcomp success failed")
+        XCTAssert(status, "optional forcomp filter not called")
     }
     
-//    func testForcompFilterYieldSucces2Optionals() {
-//        let maybe1 : Int? = 1
-//        let maybe2 : Float? = 2.0
-//        let result = forcomp(maybe1, maybe2) {(value1, value2) -> Float in
-//            return Float(value1) * value2
-//        }
-//        XCTAssert(result == 2.0, "optional forcomp success failed")
-//    }
-//    
-//    func testForcompFilterYieldFailure2Optionals() {
-//        let maybe1 : Int? = 1
-//        let maybe2 : Float? = 2.0
-//        let result = forcomp(maybe1, maybe2) {(value1, value2) -> Float in
-//            XCTAssert(false, "forcomp yield called")
-//            return 0.0
-//        }
-//        XCTAssert(result == nil, "optional forcomp failure failed")
-//    }
-//    
-//    func testForcompFilterSuccess3Optionals() {
-//        let maybe1 : Int? = 1
-//        let maybe2 : Float? = 1.0
-//        let maybe3 : Int? = 1
-//        forcomp(maybe1, maybe2, maybe3) {(value1, value2, value3) in
-//            XCTAssert(value2 == 1.0, "optional forcomp success failed")
-//            XCTAssert(value1 == 1, "optional forcomp success failed")
-//            XCTAssert(value3 == 1, "optional forcomp success failed")
-//        }
-//    }
-//    
-//    func testForcompFilterFailure3Optionals() {
-//        let maybe1 : Int? = 1
-//        let maybe2 : Float? = 1.0
-//        let maybe3 : Int? = 1
-//        forcomp(maybe1, maybe2, maybe3) {(value1, value2, value3) in
-//            XCTAssert(false, "optional forcomp apply called")
-//        }
-//    }
-//    
-//    func testForcompFilterYieldSuccess3Optionals() {
-//        let maybe1 : Int? = 1
-//        let maybe2 : Float? = 2.0
-//        let maybe3 : Int? = 3
-//        let result = forcomp(maybe1, maybe2, maybe3) {(value1, value2, value3) -> Int in
-//            return value1*Int(value2)*value3
-//        }
-//        XCTAssert(result == 6, "optional forcomp success failed")
-//    }
-//    
-//    func testForcompFilterYieldFailure3Optionals() {
-//        let maybe1 : Int? = 1
-//        let maybe2 : Float? = 2.0
-//        let maybe3 : Int? = 3
-//        let result = forcomp(maybe1, maybe2, maybe3) {(value1, value2, value3) -> Int in
-//            XCTAssert(false, "optional forcomp yield called")
-//            return 0
-//        }
-//        XCTAssert(result == nil, "optional forcomp success failed")
-//    }
+    func testForcompFilterYieldSucces2Optionals() {
+        let maybe1 : Int? = 1
+        let maybe2 : Float? = 2.0
+        var status = false
+        let result = forcomp(maybe1, maybe2, filter:{(value1, value2) -> Bool in
+                XCTAssert(value1 == 1, "optional forcomp filter nvalid value1")
+                XCTAssert(value2 == 2.0, "optional forcomp filter invalid value2")
+                status = true
+                return true
+            }) {(value1, value2) -> Float in
+                return Float(value1) * value2
+            }
+        XCTAssert(result == 2.0, "optional forcomp failed")
+        XCTAssert(status, "optional forcomp filter not called")
+    }
+    
+    func testForcompFilterYieldFailure2Optionals() {
+        let maybe1 : Int? = 1
+        let maybe2 : Float? = 2.0
+        var status = false
+        let result = forcomp(maybe1, maybe2, filter:{(value1, value2) -> Bool in
+                XCTAssert(value1 == 1, "optional forcomp filter nvalid value1")
+                XCTAssert(value2 == 2.0, "optional forcomp filter invalid value2")
+                status = true
+                return false
+            }) {(value1, value2) -> Float in
+                XCTAssert(false, "forcomp yield called")
+                return 0.0
+            }
+        XCTAssert(status, "optional forcomp filter not called")
+    }
+    
+    func testForcompFilterSuccess3Optionals() {
+        let maybe1 : Int? = 1
+        let maybe2 : Float? = 1.0
+        let maybe3 : Int? = 1
+        var filterStatus = false
+        var applyStatus = false
+        forcomp(maybe1, maybe2, maybe3, filter:{(value1, value2, value3) -> Bool in
+                XCTAssert(value1 == 1, "optional forcomp filter nvalid value1")
+                XCTAssert(value2 == 1.0, "optional forcomp filter invalid value2")
+                XCTAssert(value3 == 1, "optional forcomp filter invalid value3")
+                filterStatus = true
+                return true
+            }) {(value1, value2, value3) in
+                XCTAssert(value2 == 1.0, "optional forcomp success failed")
+                XCTAssert(value1 == 1, "optional forcomp success failed")
+                XCTAssert(value3 == 1, "optional forcomp success failed")
+                applyStatus = true
+            }
+        XCTAssert(filterStatus, "optional forcomp filter not called")
+        XCTAssert(applyStatus, "optional forcomp apply not called")
+    }
+
+    func testForcompFilterFailure3Optionals() {
+        let maybe1 : Int? = 1
+        let maybe2 : Float? = 1.0
+        let maybe3 : Int? = 1
+        var status = false
+        forcomp(maybe1, maybe2, maybe3, filter:{(value1, value2, value3) -> Bool in
+                XCTAssert(value1 == 1, "optional forcomp filter nvalid value1")
+                XCTAssert(value2 == 1.0, "optional forcomp filter invalid value2")
+                XCTAssert(value3 == 1, "optional forcomp filter invalid value3")
+                status = true
+                return false
+            }) {(value1, value2, value3) in
+                XCTAssert(false, "optional forcomp apply called")
+            }
+        XCTAssert(status, "optional forcomp filter not called")
+    }
+    
+    func testForcompFilterYieldSuccess3Optionals() {
+        let maybe1 : Int? = 1
+        let maybe2 : Float? = 2.0
+        let maybe3 : Int? = 3
+        var status = false
+        let result = forcomp(maybe1, maybe2, maybe3, filter:{(value1, value2, value3) -> Bool in
+                XCTAssert(value1 == 1, "optional forcomp filter nvalid value1")
+                XCTAssert(value2 == 2.0, "optional forcomp filter invalid value2")
+                XCTAssert(value3 == 3, "optional forcomp filter invalid value3")
+                status = true
+                return true
+            }) {(value1, value2, value3) -> Int in
+                return value1*Int(value2)*value3
+            }
+        XCTAssert(result == 6, "optional forcomp failed")
+        XCTAssert(status, "optional forcomp filter not called")
+    }
+    
+    func testForcompFilterYieldFailure3Optionals() {
+        let maybe1 : Int? = 1
+        let maybe2 : Float? = 2.0
+        let maybe3 : Int? = 3
+        var status = false
+        let result = forcomp(maybe1, maybe2, maybe3, filter:{(value1, value2, value3) -> Bool in
+                XCTAssert(value1 == 1, "optional forcomp filter nvalid value1")
+                XCTAssert(value2 == 2.0, "optional forcomp filter invalid value2")
+                XCTAssert(value3 == 3, "optional forcomp filter invalid value3")
+                status = true
+                return false
+            }) {(value1, value2, value3) -> Int in
+                XCTAssert(false, "optional forcomp yield called")
+                return 0
+            }
+        XCTAssert(result == nil, "optional forcomp failed")
+        XCTAssert(status, "optional forcomp filter not called")
+    }
 
 }
