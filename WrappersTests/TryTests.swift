@@ -182,36 +182,46 @@ class TryTests: XCTestCase {
     }
     
     func testToOptionalSuccess() {
-        
+        let try = Try(true)
+        let opt = try.toOptional()
+        XCTAssert(opt == true, "Try toOption failed")
     }
     
-    func tewstToOptionalFailure() {
-        
+    func testToOptionalFailure() {
+        let try = Try<Bool>(TestFailure.error)
+        let opt = try.toOptional()
+        XCTAssert(opt == nil, "Try toOption failed")
     }
     
     
     func testGetOrElseSuccess() {
-        
+        let try = Try(true)
+        XCTAssert(try.getOrElse(false) == true, "Try getOrElse failed")
     }
     
     func testGetOrElseFailure() {
-        
+        let try = Try<Bool>(TestFailure.error)
+        XCTAssert(try.getOrElse(false) == false, "Try getOrElse failed")
     }
     
     func testOrElseSuccess() {
-        
+        let try = Try(true)
+        shouldSucceed(try.orElse(Try(false)), true)
     }
     
     func testOrElseFailure() {
-        
+        let try = Try<Bool>(TestFailure.error)
+        shouldSucceed(try.orElse(Try(false)), false)
     }
     
     func testFlattenSuccess() {
-        
+        let try = Try(Try(true))
+        shouldSucceed(flatten(try), true)
     }
     
     func testFlattenFailure() {
-        
+        let try = Try(Try<Bool>(TestFailure.error))
+        shouldFail(try, TestFailure.error)
     }
     
     func testForcompSuccess2Trys() {
