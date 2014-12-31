@@ -8,9 +8,9 @@
 
 import Foundation
 
-struct TryError {
-    static let domain = "Wrappers"
-    static let filterFailed = NSError(domain:domain, code:1, userInfo:[NSLocalizedDescriptionKey:"Filter failed"])
+public struct TryError {
+    public static let domain = "Wrappers"
+    public static let filterFailed = NSError(domain:domain, code:1, userInfo:[NSLocalizedDescriptionKey:"Filter failed"])
 }
 
 public enum Try<T> {
@@ -69,17 +69,17 @@ public enum Try<T> {
     
     public func recover(recovery:NSError -> T) -> Try<T> {
         switch self {
-        case .Success:
-            return self
+        case .Success(let box):
+            return Try(box)
         case .Failure(let error):
-            return Try(recovery(error))
+            return Try<T>(recovery(error))
         }
     }
     
     public func recoverWith(recovery:NSError -> Try<T>) -> Try<T> {
         switch self {
-        case .Success:
-            return self
+        case .Success(let box):
+            return Try(box)
         case .Failure(let error):
             return recovery(error)
         }
@@ -89,9 +89,10 @@ public enum Try<T> {
         switch self {
         case .Success(let box):
             if !predicate(box.value) {
-                return .Failure(TryError.filterFailed)
+                return Try<T>(TryError.filterFailed)
+            } else {
+                return Try(box)
             }
-            return self
         case .Failure(let error):
             return self
         }
@@ -127,7 +128,7 @@ public enum Try<T> {
     public func orElse(failed:Try<T>) -> Try<T> {
         switch self {
         case .Success(let box):
-            return self
+            return Try(box)
         case .Failure(let error):
             return failed
         }

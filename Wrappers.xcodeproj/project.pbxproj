@@ -103,10 +103,10 @@
 		055F8DDA1A474D830094271A /* WrappersTests */ = {
 			isa = PBXGroup;
 			children = (
+				05977F731A534C8F00FA5D92 /* BoxTests.swift */,
 				05977F711A534C6000FA5D92 /* OpionalTests.swift */,
 				05977F6F1A534BF400FA5D92 /* TryTests.swift */,
 				055F8DDB1A474D830094271A /* Supporting Files */,
-				05977F731A534C8F00FA5D92 /* BoxTests.swift */,
 			);
 			path = WrappersTests;
 			sourceTree = "<group>";
