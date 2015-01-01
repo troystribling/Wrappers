@@ -154,6 +154,9 @@ class OpionalTests: XCTestCase {
         let maybe2 : Float? = 2.0
         let maybe3 : Int? = 3
         let result = forcomp(maybe1, maybe2, maybe3) {(value1, value2, value3) -> Int in
+            XCTAssert(value1 == 1, "Optional forcomp yield invalid value2")
+            XCTAssert(value2 == 2.0, "Optional forcomp yield invalid value1")
+            XCTAssert(value3 == 3, "Optional forcomp yield invalid value3")
             return value1*Int(value2)*value3
         }
         XCTAssert(result == 6, "Optional forcomp success failed")
