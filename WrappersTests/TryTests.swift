@@ -221,71 +221,235 @@ class TryTests: XCTestCase {
     
     func testFlattenFailure() {
         let try = Try(Try<Bool>(TestFailure.error))
-        shouldFail(try, TestFailure.error)
+        shouldFail(flatten(try), TestFailure.error)
     }
     
     func testForcompSuccess2Trys() {
-        
+        let try1 = Try(true)
+        let try2 = Try(1)
+        var status = false
+        forcomp(try1, try2){(value1, value2) in
+            XCTAssert(value1, "Try forcomp apply value1 invalid")
+            XCTAssert(value2 == 1, "Try forcomp apply value2 invalid")
+            status = true
+        }
+        XCTAssert(status, "Try forcomp failed")
     }
     
     func testForcompFailure2Trys() {
-        
+        let try1 = Try<Bool>(TestFailure.error)
+        let try2 = Try(1)
+        forcomp(try1, try2){(value1, value2) in
+            XCTAssert(false, "Try forcomp apply called")
+        }
     }
     
     func testForcompYieldSucces2Trys() {
-        
+        let try1 = Try(true)
+        let try2 = Try(1)
+        let result = forcomp(try1, try2){(value1, value2) -> Bool in
+            XCTAssert(value1, "Try forcomp yield value1 invalid")
+            XCTAssert(value2 == 1, "Try forcomp yield value2 invalid")
+            return false
+        }
+        shouldSucceed(result, false)
     }
     
     func testForcompYieldFailure2Trys() {
-        
+        let try1 = Try<Bool>(TestFailure.error)
+        let try2 = Try(1)
+        let result = forcomp(try1, try2){(value1, value2) -> Bool in
+            XCTAssert(false, "Try forcomp yield called")
+            return false
+        }
+        shouldFail(result, TestFailure.error)
     }
     
     func testForcompSuccess3Trys() {
-        
+        let try1 = Try(true)
+        let try2 = Try(1)
+        let try3 = Try(1.0)
+        var status = false
+        forcomp(try1, try2, try3){(value1, value2, value3) in
+            XCTAssert(value1, "Try forcomp apply value1 invalid")
+            XCTAssert(value2 == 1, "Try forcomp apply value2 invalid")
+            XCTAssert(value3 == 1.0, "Try forcomp apply value3 invalid")
+            status = true
+        }
+        XCTAssert(status, "Try forcomp failed")
     }
     
     func testForcompFailure3Trys() {
-        
+        let try1 = Try<Bool>(TestFailure.error)
+        let try2 = Try(1)
+        let try3 = Try(1.0)
+        var status = false
+        forcomp(try1, try2, try3){(value1, value2, value3) in
+            XCTAssert(false, "Try forcomp apply called")
+        }
     }
     
     func testForcompYieldSuccess3Trys() {
-        
+        let try1 = Try(true)
+        let try2 = Try(1)
+        let try3 = Try(1.0)
+        let result = forcomp(try1, try2, try3){(value1, value2, value3) -> Bool in
+            XCTAssert(value1, "Try forcomp yield value1 invalid")
+            XCTAssert(value2 == 1, "Try forcomp yield value2 invalid")
+            XCTAssert(value3 == 1.0, "Try forcomp yield value3 invalid")
+            return false
+        }
+        shouldSucceed(result, false)
     }
     
     func testForcompYieldFailure3Trys() {
+        let try1 = Try(true)
+        let try2 = Try(1)
+        let try3 = Try<Bool>(TestFailure.error)
+        let result = forcomp(try1, try2, try3){(value1, value2, value3) -> Bool in
+            XCTAssert(false, "Try forcomp yield value1 invalid")
+            return false
+        }
+        shouldFail(result, TestFailure.error)
         
     }
 
     func testForcompFilterSuccess2Trys() {
-        
+        let try1 = Try(true)
+        let try2 = Try(1)
+        var filterStatus = false
+        var applyStatus = false
+        forcomp(try1, try2, filter:{(value1, value2) -> Bool in
+                XCTAssert(value1, "Try forcomp filter value1 invalid")
+                XCTAssert(value2 == 1, "Try forcomp filter value2 invalid")
+                filterStatus = true
+                return true
+            }){(value1, value2) in
+                XCTAssert(value1, "Try forcomp apply value1 invalid")
+                XCTAssert(value2 == 1, "Try forcomp apply value2 invalid")
+                applyStatus = true
+            }
+        XCTAssert(applyStatus, "Try forcomp apply not called")
+        XCTAssert(filterStatus, "Try forcomp filter not called")
     }
     
     func testForcompFilterFailure2Trys() {
-        
+        let try1 = Try(true)
+        let try2 = Try(1)
+        var status = false
+        forcomp(try1, try2, filter:{(value1, value2) -> Bool in
+                status = true
+                return false
+            }){(value1, value2) in
+                XCTAssert(false, "Try forcomp apply called")
+        }
+        XCTAssert(status, "Try forcomp filter not called")
     }
     
     func testForcompFilterYieldSucces2Trys() {
-        
+        let try1 = Try(true)
+        let try2 = Try(1)
+        var status = false
+        let result = forcomp(try1, try2, filter:{(value1, value2) -> Bool in
+                XCTAssert(value1, "Try forcomp filter value1 invalid")
+                XCTAssert(value2 == 1, "Try forcomp filter value2 invalid")
+                status = true
+                return true
+            }){(value1, value2) -> Int in
+                XCTAssert(value1, "Try forcomp yield value1 invalid")
+                XCTAssert(value2 == 1, "Try forcomp yeild value2 invalid")
+                return 1
+        }
+        XCTAssert(status, "Try forcomp filter not called")
+        shouldSucceed(result, 1)
     }
     
     func testForcompFilterYieldFailure2Trys() {
-        
+        let try1 = Try(true)
+        let try2 = Try(1)
+        var status = false
+        let result = forcomp(try1, try2, filter:{(value1, value2) -> Bool in
+                status = true
+                return false
+            }){(value1, value2) -> Int in
+                XCTAssert(false, "Try forcomp yield called")
+                return 1
+        }
+        XCTAssert(status, "Try forcomp filter not called")
+        shouldFail(result, TryError.filterFailed)
     }
     
     func testForcompFilterSuccess3Trys() {
-        
+        let try1 = Try(true)
+        let try2 = Try(1)
+        let try3 = Try(1.0)
+        var filterStatus = false
+        var applyStatus = false
+        forcomp(try1, try2, try3, filter:{(value1, value2, value3) -> Bool in
+                XCTAssert(value1, "Try forcomp filter value1 invalid")
+                XCTAssert(value2 == 1, "Try forcomp filter value2 invalid")
+                XCTAssert(value3 == 1.0, "Try forcomp filter value3 invalid")
+                filterStatus = true
+                return true
+            }){(value1, value2, value3) in
+                XCTAssert(value1, "Try forcomp apply value1 invalid")
+                XCTAssert(value2 == 1, "Try forcomp apply value2 invalid")
+                XCTAssert(value3 == 1.0, "Try forcomp filter value3 invalid")
+                applyStatus = true
+        }
+        XCTAssert(applyStatus, "Try forcomp apply not called")
+        XCTAssert(filterStatus, "Try forcomp filter not called")
     }
     
     func testForcompFilterFailure3Trys() {
-        
+        let try1 = Try(true)
+        let try2 = Try(1)
+        let try3 = Try(1.0)
+        var status = false
+        forcomp(try1, try2, try3, filter:{(value1, value2, value3) -> Bool in
+                status = true
+                return false
+            }){(value1, value2, value3) in
+                XCTAssert(false, "Try forcomp apply called")
+        }
+        XCTAssert(status, "Try forcomp apply not called")
     }
     
     func testForcompFilterYieldSuccess3Trys() {
-        
+        let try1 = Try(true)
+        let try2 = Try(1)
+        let try3 = Try(1.0)
+        var status = false
+        let result = forcomp(try1, try2, try3, filter:{(value1, value2, value3) -> Bool in
+                XCTAssert(value1, "Try forcomp filter value1 invalid")
+                XCTAssert(value2 == 1, "Try forcomp filter value2 invalid")
+                XCTAssert(value3 == 1.0, "Try forcomp filter value3 invalid")
+                status = true
+                return true
+            }){(value1, value2, value3) -> Int in
+                XCTAssert(value1, "Try forcomp yield value1 invalid")
+                XCTAssert(value2 == 1, "Try forcomp yield value2 invalid")
+                XCTAssert(value3 == 1.0, "Try forcomp yield value3 invalid")
+                return 1
+        }
+        XCTAssert(status, "Try forcomp filter not called")
+        shouldSucceed(result, 1)
     }
     
     func testForcompFilterYieldFailure3Trys() {
-        
+        let try1 = Try(true)
+        let try2 = Try(1)
+        let try3 = Try(1.0)
+        var status = false
+        let result = forcomp(try1, try2, try3, filter:{(value1, value2, value3) -> Bool in
+                status = true
+                return false
+            }){(value1, value2, value3) -> Int in
+                XCTAssert(false, "Try forcomp yield called")
+                return 1
+        }
+        XCTAssert(status, "Try forcomp filter not called")
+        shouldFail(result, TryError.filterFailed)
     }
 
 }

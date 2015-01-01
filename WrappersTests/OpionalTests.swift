@@ -89,8 +89,8 @@ class OpionalTests: XCTestCase {
         let maybe2 : Float? = 1.0
         var status = false
         forcomp(maybe1, maybe2) {(value1, value2) in
-            XCTAssert(value1 == 1, "Optional forcomp invalid value1")
-            XCTAssert(value2 == 1.0, "Optional forcomp invalid value2")
+            XCTAssert(value1 == 1, "Optional forcomp apply invalid value1")
+            XCTAssert(value2 == 1.0, "Optional forcomp apply invalid value2")
             status = true
         }
         XCTAssert(status, "Optional forcomp apply not called")
@@ -109,6 +109,8 @@ class OpionalTests: XCTestCase {
         let maybe1 : Int? = 1
         let maybe2 : Float? = 2.0
         let result = forcomp(maybe1, maybe2) {(value1, value2) -> Float in
+            XCTAssert(value1 == 1, "Optional forcomp yield invalid value1")
+            XCTAssert(value2 == 2.0, "Optional forcomp yield invalid value2")
             return Float(value1) * value2
         }
         XCTAssert(result == 2.0, "Optional forcomp failed")
@@ -130,9 +132,9 @@ class OpionalTests: XCTestCase {
         let maybe3 : Int? = 1
         var status = false
         forcomp(maybe1, maybe2, maybe3) {(value1, value2, value3) in
-            XCTAssert(value2 == 1.0, "Optional forcomp invalid value1")
-            XCTAssert(value1 == 1, "Optional forcomp invalid value2")
-            XCTAssert(value3 == 1, "Optional forcomp invalid value3")
+            XCTAssert(value2 == 1.0, "Optional forcomp apply invalid value1")
+            XCTAssert(value1 == 1, "Optional forcomp apply invalid value2")
+            XCTAssert(value3 == 1, "Optional forcomp apply invalid value3")
             status = true
         }
         XCTAssert(status, "Optional forcomp apply not called")
@@ -174,7 +176,7 @@ class OpionalTests: XCTestCase {
         var applyStatus = false
         var filterStatus = false
         forcomp(maybe1, maybe2, filter:{(value1, value2) -> Bool in
-                XCTAssert(value1 == 1, "Optional forcomp filter nvalid value1")
+                XCTAssert(value1 == 1, "Optional forcomp filter invalid value1")
                 XCTAssert(value2 == 1.0, "Optional forcomp filter invalid value2")
                 filterStatus = true
                 return true
@@ -193,8 +195,6 @@ class OpionalTests: XCTestCase {
         let maybe2 : Float? = 1.0
         var status = false
         forcomp(maybe1, maybe2, filter:{(value1, value2) -> Bool in
-                XCTAssert(value1 == 1, "Optional forcomp filter nvalid value1")
-                XCTAssert(value2 == 1.0, "Optional forcomp filter invalid value2")
                 status = true
                 return false
             }) {(value1, value2) in
@@ -208,11 +208,13 @@ class OpionalTests: XCTestCase {
         let maybe2 : Float? = 2.0
         var status = false
         let result = forcomp(maybe1, maybe2, filter:{(value1, value2) -> Bool in
-                XCTAssert(value1 == 1, "Optional forcomp filter nvalid value1")
+                XCTAssert(value1 == 1, "Optional forcomp filter invalid value1")
                 XCTAssert(value2 == 2.0, "Optional forcomp filter invalid value2")
                 status = true
                 return true
             }) {(value1, value2) -> Float in
+                XCTAssert(value1 == 1, "Optional forcomp filter invalid value1")
+                XCTAssert(value2 == 2.0, "Optional forcomp filter invalid value2")
                 return Float(value1) * value2
             }
         XCTAssert(result == 2.0, "Optional forcomp failed")
@@ -224,8 +226,6 @@ class OpionalTests: XCTestCase {
         let maybe2 : Float? = 2.0
         var status = false
         let result = forcomp(maybe1, maybe2, filter:{(value1, value2) -> Bool in
-                XCTAssert(value1 == 1, "Optional forcomp filter nvalid value1")
-                XCTAssert(value2 == 2.0, "Optional forcomp filter invalid value2")
                 status = true
                 return false
             }) {(value1, value2) -> Float in
@@ -242,15 +242,15 @@ class OpionalTests: XCTestCase {
         var filterStatus = false
         var applyStatus = false
         forcomp(maybe1, maybe2, maybe3, filter:{(value1, value2, value3) -> Bool in
-                XCTAssert(value1 == 1, "Optional forcomp filter nvalid value1")
+                XCTAssert(value1 == 1, "Optional forcomp filter invalid value1")
                 XCTAssert(value2 == 1.0, "Optional forcomp filter invalid value2")
                 XCTAssert(value3 == 1, "Optional forcomp filter invalid value3")
                 filterStatus = true
                 return true
             }) {(value1, value2, value3) in
-                XCTAssert(value2 == 1.0, "Optional forcomp success failed")
-                XCTAssert(value1 == 1, "Optional forcomp success failed")
-                XCTAssert(value3 == 1, "Optional forcomp success failed")
+                XCTAssert(value1 == 1, "Optional forcomp apply invalid value1")
+                XCTAssert(value2 == 1.0, "Optional forcomp apply invalid value2")
+                XCTAssert(value3 == 1, "Optional forcomp apply invalid value3")
                 applyStatus = true
             }
         XCTAssert(filterStatus, "Optional forcomp filter not called")
@@ -263,9 +263,6 @@ class OpionalTests: XCTestCase {
         let maybe3 : Int? = 1
         var status = false
         forcomp(maybe1, maybe2, maybe3, filter:{(value1, value2, value3) -> Bool in
-                XCTAssert(value1 == 1, "Optional forcomp filter nvalid value1")
-                XCTAssert(value2 == 1.0, "Optional forcomp filter invalid value2")
-                XCTAssert(value3 == 1, "Optional forcomp filter invalid value3")
                 status = true
                 return false
             }) {(value1, value2, value3) in
@@ -280,12 +277,15 @@ class OpionalTests: XCTestCase {
         let maybe3 : Int? = 3
         var status = false
         let result = forcomp(maybe1, maybe2, maybe3, filter:{(value1, value2, value3) -> Bool in
-                XCTAssert(value1 == 1, "Optional forcomp filter nvalid value1")
+                XCTAssert(value1 == 1, "Optional forcomp filter invalid value1")
                 XCTAssert(value2 == 2.0, "Optional forcomp filter invalid value2")
                 XCTAssert(value3 == 3, "Optional forcomp filter invalid value3")
                 status = true
                 return true
             }) {(value1, value2, value3) -> Int in
+                XCTAssert(value1 == 1, "Optional forcomp yield invalid value1")
+                XCTAssert(value2 == 2.0, "Optional forcomp yield invalid value2")
+                XCTAssert(value3 == 3, "Optional forcomp yield invalid value3")
                 return value1*Int(value2)*value3
             }
         XCTAssert(result == 6, "Optional forcomp failed")
@@ -298,9 +298,6 @@ class OpionalTests: XCTestCase {
         let maybe3 : Int? = 3
         var status = false
         let result = forcomp(maybe1, maybe2, maybe3, filter:{(value1, value2, value3) -> Bool in
-                XCTAssert(value1 == 1, "Optional forcomp filter nvalid value1")
-                XCTAssert(value2 == 2.0, "Optional forcomp filter invalid value2")
-                XCTAssert(value3 == 3, "Optional forcomp filter invalid value3")
                 status = true
                 return false
             }) {(value1, value2, value3) -> Int in
